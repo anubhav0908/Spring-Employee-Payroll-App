@@ -35,12 +35,13 @@ public class EmployeePayrollController {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
+    // Get Employee by ID
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getEmployee(@PathVariable int id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
 
         return employee
-                .<ResponseEntity<?>>map(ResponseEntity::ok)  // Specify the generic type explicitly
+                .<ResponseEntity<?>>map(ResponseEntity::ok)  // Explicitly specify generic type
                 .orElseGet(() -> ResponseEntity.status(404).body("Employee not found"));
     }
 
