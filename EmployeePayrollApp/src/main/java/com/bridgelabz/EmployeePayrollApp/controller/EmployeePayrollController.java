@@ -1,12 +1,15 @@
 package com.bridgelabz.EmployeePayrollApp.controller;
 
+import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
 import com.bridgelabz.EmployeePayrollApp.model.Employee;
+import com.bridgelabz.EmployeePayrollApp.service.EmployeeService;
 import com.bridgelabz.EmployeePayrollApp.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/employeepayrollservice")
@@ -22,20 +25,9 @@ public class EmployeePayrollController {
 
     // Create Employee
     @PostMapping("/create")
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-        Employee savedEmployee = employeeService.createEmployee(employee);
-        return ResponseEntity.ok(savedEmployee);
-    }
-
-    // Get Employee by ID
-    @GetMapping("/get/{id}")
-    public ResponseEntity<Employee> getEmployee(@PathVariable int id) {
-        Employee employee = employeeService.getEmployeeById(id);
-        if (employee != null) {
-            return ResponseEntity.ok(employee);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        Employee employee = employeeService.createEmployee(employeeDTO);
+        return ResponseEntity.ok(employee);
     }
 
     // Get All Employees
@@ -44,21 +36,39 @@ public class EmployeePayrollController {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
-    // Update Employee
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable int id, @RequestBody Employee employee) {
-        Employee updatedEmployee = employeeService.updateEmployee(id, employee);
-        if (updatedEmployee != null) {
-            return ResponseEntity.ok(updatedEmployee);
+    @GetMapping("/get/{id}")
+    public ResponseEntity<ApiResponse<?>> getEmployee(@PathVariable int id) {
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent()) {
+            return ResponseEntity.ok(new ApiResponse<>("Employee found", employee.get()));
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body(new ApiResponse<>("Employee not found", null));
         }
     }
+
+
+
+    // Update Employee
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateEmployee(@PathVariable int id, @RequestBody EmployeeDTO employeeDTO) {
+        Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
+
+        if (updatedEmployee.isPresent()) {
+            return ResponseEntity.ok(updatedEmployee.get());
+        } else {
+            return ResponseEntity.status(404).body("Employee not found");
+        }
+    }
+
 
     // Delete Employee
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteEmployee(@PathVariable int id) {
-        employeeService.deleteEmployee(id);
-        return ResponseEntity.ok("Employee deleted with ID: " + id);
+        boolean isDeleted = employeeService.deleteEmployee(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Employee deleted with ID: " + id);
+        } else {
+            return ResponseEntity.status(404).body("Employee not found");
+        }
     }
 }
