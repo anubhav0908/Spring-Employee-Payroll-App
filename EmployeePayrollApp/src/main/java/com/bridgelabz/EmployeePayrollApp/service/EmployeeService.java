@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class EmployeeService {
+public class EmployeeService implements IEmployeePayrollService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    // Create Employee
+    @Override
     public Employee createEmployee(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         employee.setName(employeeDTO.getName());
@@ -23,17 +23,17 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    // Get All Employees
+    @Override
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
     }
 
-    // Get Employee by ID
+    @Override
     public Optional<Employee> getEmployeeById(int id) {
         return employeeRepository.findById(id);
     }
 
-    // Update Employee
+    @Override
     public Optional<Employee> updateEmployee(int id, EmployeeDTO employeeDTO) {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
         existingEmployee.ifPresent(employee -> {
@@ -44,7 +44,7 @@ public class EmployeeService {
         return existingEmployee;
     }
 
-    // Delete Employee
+    @Override
     public boolean deleteEmployee(int id) {
         if (employeeRepository.existsById(id)) {
             employeeRepository.deleteById(id);

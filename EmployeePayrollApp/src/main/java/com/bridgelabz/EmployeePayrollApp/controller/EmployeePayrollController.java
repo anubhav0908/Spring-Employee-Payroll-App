@@ -2,8 +2,7 @@ package com.bridgelabz.EmployeePayrollApp.controller;
 
 import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
 import com.bridgelabz.EmployeePayrollApp.model.Employee;
-import com.bridgelabz.EmployeePayrollApp.service.EmployeeService;
-import com.bridgelabz.EmployeePayrollApp.service.EmployeeService;
+import com.bridgelabz.EmployeePayrollApp.service.IEmployeePayrollService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,7 @@ import java.util.Optional;
 public class EmployeePayrollController {
 
     @Autowired
-    private EmployeeService employeeService;
+    private IEmployeePayrollService employeeService;
 
     @GetMapping("/")
     public String home() {
@@ -37,15 +36,13 @@ public class EmployeePayrollController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<ApiResponse<?>> getEmployee(@PathVariable int id) {
+    public ResponseEntity<?> getEmployee(@PathVariable int id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
-        if (employee.isPresent()) {
-            return ResponseEntity.ok(new ApiResponse<>("Employee found", employee.get()));
-        } else {
-            return ResponseEntity.status(404).body(new ApiResponse<>("Employee not found", null));
-        }
-    }
 
+        return employee
+                .<ResponseEntity<?>>map(ResponseEntity::ok)  // Specify the generic type explicitly
+                .orElseGet(() -> ResponseEntity.status(404).body("Employee not found"));
+    }
 
 
     // Update Employee
@@ -53,11 +50,9 @@ public class EmployeePayrollController {
     public ResponseEntity<?> updateEmployee(@PathVariable int id, @RequestBody EmployeeDTO employeeDTO) {
         Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
 
-        if (updatedEmployee.isPresent()) {
-            return ResponseEntity.ok(updatedEmployee.get());
-        } else {
-            return ResponseEntity.status(404).body("Employee not found");
-        }
+        return updatedEmployee
+                .<ResponseEntity<?>>map(ResponseEntity::ok)  // Explicitly specify generic type
+                .orElseGet(() -> ResponseEntity.status(404).body("Employee not found"));
     }
 
 
