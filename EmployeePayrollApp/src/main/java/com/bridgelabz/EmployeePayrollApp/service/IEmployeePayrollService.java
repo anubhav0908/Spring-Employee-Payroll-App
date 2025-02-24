@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IEmployeePayrollService {
+
     Employee createEmployee(EmployeeDTO employeeDTO);
     List<Employee> getAllEmployees();
     Optional<Employee> getEmployeeById(int id);
     Optional<Employee> updateEmployee(int id, EmployeeDTO employeeDTO);
     boolean deleteEmployee(int id);
+    
 }
