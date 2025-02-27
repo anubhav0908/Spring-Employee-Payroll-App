@@ -3,6 +3,7 @@ package com.bridgelabz.EmployeePayrollApp.controller;
 import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
 import com.bridgelabz.EmployeePayrollApp.model.Employee;
 import com.bridgelabz.EmployeePayrollApp.service.IEmployeePayrollService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class EmployeePayrollController {
 
     // Create Employee
     @PostMapping("/create")
-    public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeDTO employeeDTO) {
+    public ResponseEntity<Employee> createEmployee(@Valid  @RequestBody  EmployeeDTO employeeDTO) {
         log.info("Creating Employee: {}", employeeDTO);
         Employee employee = employeeService.createEmployee(employeeDTO);
         log.info("Employee Created: {}", employee);
