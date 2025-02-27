@@ -1,6 +1,7 @@
 package com.bridgelabz.EmployeePayrollApp.service;
 
 import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
+import com.bridgelabz.EmployeePayrollApp.exception.EmployeeNotFoundException;
 import com.bridgelabz.EmployeePayrollApp.model.Employee;
 import com.bridgelabz.EmployeePayrollApp.repository.EmployeeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class EmployeeService implements IEmployeePayrollService {
         Employee savedEmployee = employeeRepository.save(employee);
         log.info("Employee created successfully with ID: {}", savedEmployee.getId());
         return savedEmployee;
+
     }
 
     @Override
@@ -33,35 +35,25 @@ public class EmployeeService implements IEmployeePayrollService {
         log.info("Fetching all employees from database");
         return employeeRepository.findAll();
     }
-
     @Override
     public Optional<Employee> getEmployeeById(int id) {
-        log.info("Fetching employee by ID: {}", id);
-        return employeeRepository.findById(id);
+        return Optional.ofNullable(employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found")));
     }
 
     @Override
     public Optional<Employee> updateEmployee(int id, EmployeeDTO employeeDTO) {
-        log.info("Updating employee with ID: {}", id);
-        Optional<Employee> existingEmployee = employeeRepository.findById(id);
-        existingEmployee.ifPresent(employee -> {
-            employee.setName(employeeDTO.getName());
-            employee.setSalary(employeeDTO.getSalary());
-            employeeRepository.save(employee);
-            log.info("Employee updated successfully with ID: {}", id);
-        });
-        return existingEmployee;
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
+        employee.setName(employeeDTO.getName());
+        employee.setSalary(employeeDTO.getSalary());
+        return Optional.of(employeeRepository.save(employee));
     }
 
     @Override
-    public boolean deleteEmployee(int id) {
-        log.info("Deleting employee with ID: {}", id);
-        if (employeeRepository.existsById(id)) {
-            employeeRepository.deleteById(id);
-            log.info("Employee deleted successfully with ID: {}", id);
-            return true;
-        }
-        log.warn("Employee not found with ID: {}", id);
-        return false;
+    public void deleteEmployee(int id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
+        employeeRepository.delete(employee);
     }
 }

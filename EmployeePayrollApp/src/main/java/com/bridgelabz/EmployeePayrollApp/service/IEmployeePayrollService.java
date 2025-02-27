@@ -12,6 +12,6 @@ public interface IEmployeePayrollService {
     List<Employee> getAllEmployees();
     Optional<Employee> getEmployeeById(int id);
     Optional<Employee> updateEmployee(int id, EmployeeDTO employeeDTO);
-    boolean deleteEmployee(int id);
+    void deleteEmployee(int id);
     
 }
