@@ -4,14 +4,12 @@ import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
 import com.bridgelabz.EmployeePayrollApp.exception.EmployeeNotFoundException;
 import com.bridgelabz.EmployeePayrollApp.model.Employee;
 import com.bridgelabz.EmployeePayrollApp.repository.EmployeeRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j  // Lombok annotation for logging
 @Service
 public class EmployeeService implements IEmployeePayrollService {
 
@@ -20,40 +18,39 @@ public class EmployeeService implements IEmployeePayrollService {
 
     @Override
     public Employee createEmployee(EmployeeDTO employeeDTO) {
-        log.info("Creating a new employee with name: {}", employeeDTO.getName());
         Employee employee = new Employee();
         employee.setName(employeeDTO.getName());
         employee.setSalary(employeeDTO.getSalary());
-        Employee savedEmployee = employeeRepository.save(employee);
-        log.info("Employee created successfully with ID: {}", savedEmployee.getId());
-        return savedEmployee;
-
+        return employeeRepository.save(employee);
     }
 
     @Override
     public List<Employee> getAllEmployees() {
-        log.info("Fetching all employees from database");
         return employeeRepository.findAll();
     }
+
     @Override
     public Optional<Employee> getEmployeeById(int id) {
         return Optional.ofNullable(employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found")));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + id)));
     }
 
     @Override
     public Optional<Employee> updateEmployee(int id, EmployeeDTO employeeDTO) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
-        employee.setName(employeeDTO.getName());
-        employee.setSalary(employeeDTO.getSalary());
-        return Optional.of(employeeRepository.save(employee));
+        Employee existingEmployee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + id));
+
+        existingEmployee.setName(employeeDTO.getName());
+        existingEmployee.setSalary(employeeDTO.getSalary());
+        employeeRepository.save(existingEmployee);
+        return Optional.of(existingEmployee);
     }
 
     @Override
-    public void deleteEmployee(int id) {
+    public boolean deleteEmployee(int id) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + id));
         employeeRepository.delete(employee);
+        return true;
     }
 }
